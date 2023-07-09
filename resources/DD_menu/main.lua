@@ -5,7 +5,7 @@ function TeleportToWaypoint()
     local waypointBlip = GetFirstBlipInfoId(8) -- 8 is the blip id for waypoint
     if DoesBlipExist(waypointBlip) then
         local coord = Citizen.InvokeNative(0xFA7C7F0AADF25D09, waypointBlip, Citizen.ResultAsVector()) -- GetBlipInfoIdCoord
-        local groundZ = GetGroundZFor_3dCoord(coord.x, coord.y, coord.z)
+        local groundZ = GetGroundZFor_3dCoord(coord.x, coord.y, coord.z+0.2)
         SetEntityCoords(PlayerPedId(), coord.x, coord.y, groundZ)
     else
         Notify("~r~No waypoint has been set!")
@@ -19,7 +19,7 @@ function SpawnWeaponPickup()
 
     -- create the weapon pickup
     -- replace WEAPON_PISTOL and 10 with the weapon hash and ammo count you want
-    local pickup = CreatePickupRotate(GetHashKey("PICKUP_WEAPON_PISTOL"), pickupPos.x, pickupPos.y, pickupPos.z, 0, 0, 0, 2, 10, 2, true, GetHashKey("WEAPON_PISTOL"))
+    local pickup = CreatePickupRotate(GetHashKey("PICKUP_WEAPON_PISTOL"), pickupPos.x, pickupPos.y, pickupPos.z, 0, 0, 0, 2, 100, 2, true, GetHashKey("WEAPON_PISTOL"))
 
     Notify("Weapon pickup spawned!")
 end
@@ -36,8 +36,8 @@ function MenuCallFunction(fnc, arg)
 end
 
 local options = {
-    x = 0.88,
-    y = 0.2,
+    x = 0.2,
+    y = 0.1,
     width = 0.22,
     height = 0.04,
     scale = 0.4,
