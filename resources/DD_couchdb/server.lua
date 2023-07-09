@@ -24,17 +24,17 @@ AddEventHandler('playerConnecting', function(playerName, setKickReason, deferral
             local weapons = {} -- Initialize with default weapons or call a function to get player weapons
   
             local data = {
-              _id = steamId,
-              steamId = steamId,
-              name = playerName,
-              pos = {
-                x = coords.x,
-                y = coords.y,
-                z = coords.z
-              },
-              model = model,
-              weapons = weapons
-              -- Add more fields as needed
+                _id = steamId,
+                steamId = steamId,
+                name = playerName,
+                pos = {
+                    x = coords.x,
+                    y = coords.y,
+                    z = coords.z
+                },
+                model = model,
+                weapons = weapons
+                -- Add more fields as needed
             }
   
             -- Use the general database URL without a specific ID to let CouchDB generate an ID
@@ -51,30 +51,29 @@ AddEventHandler('playerConnecting', function(playerName, setKickReason, deferral
             print("Error: " .. statusCode)
         end
     end, 'GET', '', {})
-  end)
-  
+end)
 
 -- Event when a player spawns
 AddEventHandler('playerSpawned', function(spawnInfo)
-  local playerId = source
-  local identifiers = GetPlayerIdentifiers(playerId)
-  local steamId = identifiers[1] -- assuming first identifier is always Steam ID
-  local url = 'http://192.168.1.127:5984/fivem_player_stats/' .. steamId -- replace with your actual URL and DB name
+    local playerId = source
+    local identifiers = GetPlayerIdentifiers(playerId)
+    local steamId = identifiers[1] -- assuming first identifier is always Steam ID
+    local url = 'http://192.168.1.127:5984/fivem_player_stats/' .. steamId -- replace with your actual URL and DB name
 
-  local coords = GetEntityCoords(GetPlayerPed(playerId))
-  local data = {
-      _id = steamId,
-      pos = {
-          x = coords.x,
-          y = coords.y,
-          z = coords.z
-      },
-  }
-  PerformHttpRequest(url, function(statusCode, response, headers)
-      if statusCode == 200 then
-          print("Player position has been updated in the database.")
-      else
-          print("Error: " .. statusCode)
-      end
-  end, 'PUT', json.encode(data), {["Content-Type"] = 'application/json'})
+    local coords = GetEntityCoords(GetPlayerPed(playerId))
+    local data = {
+        _id = steamId,
+        pos = {
+            x = coords.x,
+            y = coords.y,
+            z = coords.z
+        },
+    }
+    PerformHttpRequest(url, function(statusCode, response, headers)
+        if statusCode == 200 then
+            print("Player position has been updated in the database.")
+        else
+            print("Error: " .. statusCode)
+        end
+    end, 'PUT', json.encode(data), {["Content-Type"] = 'application/json'})
 end)
