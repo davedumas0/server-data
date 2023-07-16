@@ -23,13 +23,6 @@ local function isIdentifierBlocked(identifier)
     return identifierBlocklist[idType] or false
 end
 
--- our database schema, in hierarchical KVS syntax:
--- player:
---     <id>:
---         identifier:
---             <identifier>: 'true'
--- identifier:
---     <identifier>: <playerId>
 
 -- list of player indices to data
 local players = {}
@@ -69,10 +62,21 @@ local function storeIdentifiers(playerIdx, newId)
     for _, identifier in ipairs(GetPlayerIdentifiers(playerIdx)) do
         if not isIdentifierBlocked(identifier) then
             -- TODO: check if the player already has an identifier of this type
-            setPlayerIdFromIdentifier(identifier, newId)
+            -- setPlayerIdFromIdentifier(identifier, newId)
+
+            -- Create a new document for the player in CouchDB
+            local data = {
+                _id = identifier,
+                playerId = newId
+            }
+
+            PerformHttpRequest('http://192.168.1.127:5984/fivem_player_stats', function(errorCode, resultData, resultHeaders)
+                print(resultData)
+            end, 'POST', json.encode(data), { ["Content-Type"] = 'application/json' })
         end
     end
 end
+
 
 -- registers a new player (increments sequence, stores data, returns ID)
 local function registerPlayer(playerIdx)
@@ -220,3 +224,36 @@ end)
 AddExport('getPlayerById', function(playerId)
     return playersById[tostring(playerId)]
 end)
+
+-- Function to load character data from CouchDB
+function loadCharacterData(characterId)
+    -- Define the CouchDB endpoint
+    local couchdb_endpoint = "http://192.168.1.127:5984/fivem_player_stats" .. characterId -- replace "mydatabase" with your actual database name
+
+    -- Perform the HTTP request
+    PerformHttpRequest(couchdb_endpoint, function(statusCode, response, headers)
+        if statusCode == 200 then
+            -- Parse the response
+            local data = json.decode(response)
+
+            -- Do something with the character data
+            print('Character data loaded from CouchDB:')
+            print(data)
+        else
+            print('Failed to load character data from CouchDB. Status code: ' .. statusCode)
+        end
+    end, 'GET')
+end
+
+-- Event handler for 'loadCharacterInfo'
+RegisterNetEvent('loadCharacterInfo')
+
+AddEventHandler('loadCharacterInfo', function(characterId)
+    print('loadCharacterInfo event triggered with character ID: ' .. characterId)  -- Add this line
+    -- Load the character data
+    loadCharacterData(characterId)
+end)
+
+-- Server-side script
+local characterData = loadCharacterData(characterId)  -- Load the character data
+TriggerClientEvent('receiveCharacterData', source, characterData)  -- Send the character data to the client

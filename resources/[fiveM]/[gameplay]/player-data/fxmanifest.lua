@@ -10,6 +10,7 @@ fx_version 'bodacious'
 game 'common'
 
 server_script 'server.lua'
+client_script 'client.lua'
 
 provides {
     'cfx.re/playerData.v1alpha1'
